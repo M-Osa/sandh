@@ -1,12 +1,6 @@
 import React from 'react';
 import './App.css';
 
-function sleepFor(sleepDuration) {
-    var now = new Date().getTime();
-    while (new Date().getTime() < now + sleepDuration) { /* do nothing */
-    }
-}
-
 const AccountContext = React.createContext()
 const useAccount = () => React.useContext(AccountContext)
 
@@ -14,7 +8,6 @@ const useAccount = () => React.useContext(AccountContext)
 const ChildHook = () => {
     const account = useAccount()
     console.log('      rendering ChildHook')
-    sleepFor(5)
     return (<div>hook: {account.name}</div>)
 
 }
@@ -22,7 +15,6 @@ const ChildHook = () => {
 const PureChildHook = React.memo(() => {
     const account = useAccount()
     console.log('      rendering PureChildHook')
-    sleepFor(5)
     return (<div>pure hook: {account.name}</div>)
 
 })
@@ -32,7 +24,6 @@ const VeryPureChildHook = () => {
 
     return React.useMemo(() => {
             console.log('      rendering VeryPureChildHook')
-            sleepFor(5)
             return <div>very pure hook: {account.name}</div>
         }
         , [account.name])
@@ -40,25 +31,19 @@ const VeryPureChildHook = () => {
 
 const ChildProp = ({account}) => {
     console.log('      rendering ChildProp')
-    sleepFor(5)
     return (<div>child: {account.name}</div>)
 }
 
 
 const PureChildProp = React.memo(({account}) => {
     console.log('      rendering PureChildProp')
-    sleepFor(5)
     return (<div>pure child: {account.name}</div>)
 })
 
-const VeryPureChildProp = ({account}) => {
-    return React.useMemo(() => {
+const VeryPureChildProp = React.memo(({account}) => {
             console.log('      rendering VeryPureChildProp')
-            sleepFor(5)
             return <div>very pure child: {account.name}</div>
-        }
-        , [account.name])
-}
+},(prev, next)=> prev.account.name === next.account.name)
 
 
 const ParentComponent = () => {
@@ -79,23 +64,23 @@ const ParentComponent = () => {
 
 
 // shouldComponentNOTUpdate
-const areEqual = (prevProps, nextProps) => {
+const areEqualPreference = (prevProps, nextProps) => {
     return prevProps.preference === nextProps.preference
 }
 
-const MemoizedUselessComponent = React.memo(({preference}) => {
-    console.log('  rendering MemoizedUselessComponent')
-    return <div className='useless-component'>
-        <p>MemoizedUselessComponent:</p>
+const PureGrandParent = React.memo(({preference}) => {
+    console.log('  rendering Pure GrandParent')
+    return <div className='grand-parent'>
+        <p>Pure GrandParent:</p>
         <ParentComponent preference={preference}/>
     </div>
-}, areEqual)
+}, areEqualPreference)
 
 
-const UselessComponent = ({preference}) => {
-    console.log('  rendering UselessComponent')
-    return <div className='useless-component'>
-        <p>UselessComponent:</p>
+const GrandParent = ({preference}) => {
+    console.log('  rendering GrandParent')
+    return <div className='grand-parent'>
+        <p>GrandParent:</p>
         <ParentComponent preference={preference}/>
     </div>
 }
@@ -110,9 +95,9 @@ function App() {
     return (
         <div className="App">
             <AccountContext.Provider value={account}>
-                <UselessComponent preference={preference} uselessVar={uselessVar}/>
+                <GrandParent preference={preference} uselessVar={uselessVar}/>
                 <hr/>
-                <MemoizedUselessComponent preference={preference} uselessVar={uselessVar}/>
+                <PureGrandParent preference={preference} uselessVar={uselessVar}/>
                 <button onClick={() => {
                     console.log('**updating account name to ', account.name + '1');
                     setAccount({...account, name: account.name + '1'})
