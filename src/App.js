@@ -5,59 +5,58 @@ const AccountContext = React.createContext()
 const useAccount = () => React.useContext(AccountContext)
 
 
-const ChildHook = () => {
+const AccountNameHook = () => {
     const account = useAccount()
-    console.log('      rendering ChildHook')
+    console.log('      rendering AccountNameHook')
     return (<div>hook: {account.name}</div>)
 
 }
 
-const PureChildHook = React.memo(() => {
+const AccountNamePureHook = React.memo(() => {
     const account = useAccount()
-    console.log('      rendering PureChildHook')
+    console.log('      rendering AccountNamePureHook')
     return (<div>pure hook: {account.name}</div>)
 
 })
 
-const VeryPureChildHook = () => {
+const AccountNameVeryPureHook = () => {
     const account = useAccount()
 
     return React.useMemo(() => {
-            console.log('      rendering VeryPureChildHook')
+            console.log('      rendering AccountNameVeryPureHook')
             return <div>very pure hook: {account.name}</div>
         }
         , [account.name])
 }
 
-const ChildProp = ({account}) => {
-    console.log('      rendering ChildProp')
-    return (<div>child: {account.name}</div>)
+const AccountNameProp = ({account}) => {
+    console.log('      rendering AccountNameProp')
+    return (<div>prop: {account.name}</div>)
 }
 
-
-const PureChildProp = React.memo(({account}) => {
-    console.log('      rendering PureChildProp')
-    return (<div>pure child: {account.name}</div>)
+const AccountNamePureProp = React.memo(({account}) => {
+    console.log('      rendering AccountNamePureProp')
+    return (<div>pure prop: {account.name}</div>)
 })
 
-const VeryPureChildProp = React.memo(({account}) => {
-            console.log('      rendering VeryPureChildProp')
-            return <div>very pure child: {account.name}</div>
+const AccountNameVeryPureProp = React.memo(({account}) => {
+    console.log('      rendering AccountNameVeryPureProp')
+    return <div>very pure prop: {account.name}</div>
 },(prev, next)=> prev.account.name === next.account.name)
 
 
-const ParentComponent = () => {
+const Account = () => {
     const account = useAccount()
-    console.log('    rendering ParentComponent')
+    console.log('    rendering Account')
     return (
         <>
-            <ChildHook/>
-            <PureChildHook/>
-            <VeryPureChildHook/>
+            <AccountNameHook/>
+            <AccountNamePureHook/>
+            <AccountNameVeryPureHook/>
 
-            <ChildProp account={account}/>
-            <PureChildProp account={account}/>
-            <VeryPureChildProp account={account}/>
+            <AccountNameProp account={account}/>
+            <AccountNamePureProp account={account}/>
+            <AccountNameVeryPureProp account={account}/>
         </>
     )
 }
@@ -68,36 +67,36 @@ const areEqualPreference = (prevProps, nextProps) => {
     return prevProps.preference === nextProps.preference
 }
 
-const PureGrandParent = React.memo(({preference}) => {
-    console.log('  rendering Pure GrandParent')
+const PureContainerComponent = React.memo(({preference}) => {
+    console.log('  rendering Pure ContainerComponent')
     return <div className='grand-parent'>
-        <p>Pure GrandParent:</p>
-        <ParentComponent preference={preference}/>
+        <p>Pure ContainerComponent:</p>
+        <Account preference={preference}/>
     </div>
 }, areEqualPreference)
 
 
-const GrandParent = ({preference}) => {
-    console.log('  rendering GrandParent')
+const ContainerComponent = ({preference}) => {
+    console.log('  rendering ContainerComponent')
     return <div className='grand-parent'>
-        <p>GrandParent:</p>
-        <ParentComponent preference={preference}/>
+        <p>ContainerComponent:</p>
+        <Account preference={preference}/>
     </div>
 }
 
 
 function App() {
-    const [account, setAccount] = React.useState({name: 'name', id: 1, extra: 0})
+    const [account, setAccount] = React.useState({id: 1, name: 'name', numberOfAppointments: 0})
     const [preference, setPreference] = React.useState('pref')
-    const [uselessVar, setUselessVar] = React.useState('useless')
+    const [appointments, setAppointments] = React.useState('appointments')
     console.log('--------------------------------------------')
     console.log('rendering App')
     return (
         <div className="App">
             <AccountContext.Provider value={account}>
-                <GrandParent preference={preference} uselessVar={uselessVar}/>
+                <ContainerComponent preference={preference} appointments={appointments}/>
                 <hr/>
-                <PureGrandParent preference={preference} uselessVar={uselessVar}/>
+                <PureContainerComponent preference={preference} appointments={appointments}/>
                 <button onClick={() => {
                     console.log('**updating account name to ', account.name + '1');
                     setAccount({...account, name: account.name + '1'})
@@ -105,10 +104,10 @@ function App() {
                     update name in account
                 </button>
                 <button onClick={() => {
-                    console.log('**updating account extra to ', account.extra + 1);
-                    setAccount({...account, extra: account.extra + 1})
+                    console.log('**updating account numberOfAppointments to ', account.numberOfAppointments + 1);
+                    setAccount({...account, numberOfAppointments: account.numberOfAppointments + 1})
                 }}>
-                    update useless in account
+                    update number of appts in account
                 </button>
                 <button onClick={() => {
                     console.log('**updating preference to ', preference + '2');
@@ -117,10 +116,10 @@ function App() {
                     update preference
                 </button>
                 <button onClick={() => {
-                    console.log('**updating uselessVar to ', uselessVar + '3');
-                    setUselessVar(uselessVar + '3')
+                    console.log('**updating appointments to ', appointments + '3');
+                    setAppointments(appointments + '3')
                 }}>
-                    update nothing
+                    update appointments
                 </button>
             </AccountContext.Provider>
         </div>
